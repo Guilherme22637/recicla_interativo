@@ -2,104 +2,108 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Recicla Interativo</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#2ecc71">
+
+  <!-- Leaflet (Mapa) -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.3.0/firebase-firestore.js"></script>
 </head>
+
 <body>
-  <header>
-    <h1>Recicla Interativo</h1>
-    <nav>
-      <button onclick="showPage('home')">Início</button>
-      <button onclick="showPage('classify')">Classificar Lixo</button>
-      <button onclick="showPage('quiz')">Quiz</button>
-      <button onclick="showPage('map')">Pontos de Coleta</button>
-      <button onclick="showPage('schools')">Escolas</button>
-      <button onclick="showPage('support')">Suporte</button>
-      <button onclick="showPage('profile')">Perfil</button>
-      <button onclick="showPage('login')">Login</button>
-    </nav>
-  </header>
 
-  <main>
-    <!-- Home -->
-    <section id="home" class="page">
-      <h2>Bem-vindo ao Recicla Interativo!</h2>
-      <p>Aprenda a reciclar, descubra pontos de coleta e participe do nosso quiz.</p>
-    </section>
+<header>
+  <h1>Recicla Interativo</h1>
+</header>
 
-    <!-- Classificar Lixo -->
-    <section id="classify" class="page" style="display:none">
-      <h2>Classificador de Resíduos</h2>
-      <div class="buttons">
-        <button onclick="showTips('Papel')">Papel</button>
-        <button onclick="showTips('Plástico')">Plástico</button>
-        <button onclick="showTips('Vidro')">Vidro</button>
-        <button onclick="showTips('Metal')">Metal</button>
-        <button onclick="showTips('Orgânico')">Orgânico</button>
-      </div>
-      <p id="tipText"></p>
-    </section>
+<nav>
+  <button onclick="showPage('home')">Início</button>
+  <button onclick="showPage('classificador')">Classificar Lixo</button>
+  <button onclick="showPage('quiz')">Quiz</button>
+  <button onclick="showPage('mapa')">Pontos de Coleta</button>
+  <button onclick="showPage('escola')">Escolas</button>
+  <button onclick="showPage('suporte')">Suporte</button>
+  <button onclick="showPage('perfil')">Perfil</button>
+</nav>
 
-    <!-- Quiz -->
-    <section id="quiz" class="page" style="display:none">
-      <h2>Quiz de Reciclagem</h2>
-      <div id="quizContainer"></div>
-    </section>
+<main>
 
-    <!-- Pontos de Coleta -->
-    <section id="map" class="page" style="display:none">
-      <h2>Pontos de Coleta</h2>
-      <div id="mapid" style="height:400px;"></div>
-    </section>
+<!-- ================= HOME ================= -->
+<section id="home" class="page">
+  <h2>Bem-vindo ao Recicla Interativo 🌱</h2>
+  <p>Aprenda a reciclar, jogue o quiz, veja pontos de coleta, adicione sua escola e acompanhe seu perfil!</p>
+</section>
 
-    <!-- Escolas -->
-    <section id="schools" class="page" style="display:none">
-      <h2>Escolas Próximas</h2>
-      <div id="schoolMap" style="height:400px;"></div>
-      <ul id="schoolList"></ul>
-    </section>
+<!-- ================= CLASSIFICADOR ================= -->
+<section id="classificador" class="page">
+  <h2>Classificador de Resíduos</h2>
 
-    <!-- Suporte -->
-    <section id="support" class="page" style="display:none">
-      <h2>Suporte</h2>
-      <form id="supportForm">
-        <input type="text" placeholder="Seu nome" required>
-        <input type="email" placeholder="Seu e-mail" required>
-        <textarea placeholder="Descreva seu problema" required></textarea>
-        <button type="submit">Enviar</button>
-      </form>
-      <p id="supportMsg"></p>
-    </section>
+  <div class="buttons">
+    <button onclick="showTips('Papel')">Papel</button>
+    <button onclick="showTips('Plástico')">Plástico</button>
+    <button onclick="showTips('Vidro')">Vidro</button>
+    <button onclick="showTips('Metal')">Metal</button>
+    <button onclick="showTips('Orgânico')">Orgânico</button>
+  </div>
 
-    <!-- Perfil -->
-    <section id="profile" class="page" style="display:none">
-      <h2>Perfil do Usuário</h2>
-      <input type="file" id="profilePicInput" accept="image/*">
-      <img id="profilePic" src="" alt="Foto de Perfil">
-      <p>Pontuação acumulada: <span id="userScore">0</span></p>
-    </section>
+  <p id="tipsText"></p>
+</section>
 
-    <!-- Login -->
-    <section id="login" class="page" style="display:none">
-      <h2>Login / Registrar</h2>
-      <input type="email" id="loginEmail" placeholder="Email">
-      <input type="password" id="loginPass" placeholder="Senha">
-      <button onclick="login()">Login</button>
-      <button onclick="register()">Registrar</button>
-      <p id="loginMsg"></p>
-    </section>
-  </main>
+<!-- ================= QUIZ ================= -->
+<section id="quiz" class="page">
+  <h2>Quiz da Reciclagem</h2>
 
-  <script src="script.js"></script>
+  <div id="quizContainer"></div>
+</section>
+
+<!-- ================= MAPA ================= -->
+<section id="mapa" class="page">
+  <h2>Pontos de Coleta – Bertolínia, Piauí</h2>
+  <div id="mapid"></div>
+</section>
+
+<!-- ================= ESCOLAS ================= -->
+<section id="escola" class="page">
+  <h2>Escolas da Região</h2>
+  <p>Veja escolas próximas de Bertolínia – PI.</p>
+
+  <ul id="schoolList"></ul>
+
+  <h3>Adicionar nova escola:</h3>
+  <input id="schoolName" placeholder="Nome da escola">
+  <button onclick="addSchool()">Adicionar</button>
+
+  <div id="schoolMap"></div>
+</section>
+
+<!-- ================= SUPORTE ================= -->
+<section id="suporte" class="page">
+  <h2>Suporte</h2>
+
+  <form onsubmit="sendSupport(event)">
+    <input id="supName" placeholder="Seu nome">
+    <input id="supEmail" placeholder="Seu email">
+    <textarea id="supMsg" placeholder="Descreva seu problema"></textarea>
+
+    <button type="submit">Enviar</button>
+  </form>
+
+  <p id="supportResponse"></p>
+</section>
+
+<!-- ================= PERFIL ================= -->
+<section id="perfil" class="page">
+  <h2>Perfil</h2>
+
+  <img id="profilePic" src="" alt="Foto de Perfil">
+
+  <input type="file" accept="image/*" onchange="loadProfilePic(event)">
+
+  <p><b>Usuário:</b> <span id="usernameText">Visitante</span></p>
+</section>
+
+</main>
+
+<script src="script.js"></script>
 </body>
 </html>
