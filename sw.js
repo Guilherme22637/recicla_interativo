@@ -1,18 +1,50 @@
 const cacheName = "recicla-cache-v1";
+
+// Liste aqui todos os arquivos principais do site
 const assets = [
-  "/",
-  "/index.html",
-  "/styles.css",
-  "/script.js",
-  "/manifest.json",
-  "https://unpkg.com/leaflet@1.9.3/dist/leaflet.css",
-  "https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"
+  "./",
+  "./index.html",
+  "./styles.css",
+  "./script.js",
+  "./manifest.json",
+  "./icons/icon-192.png",
+  "./icons/icon-512.png"
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(cacheName).then(c => c.addAll(assets)));
+// INSTALAÇÃO — cria o cache inicial
+self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(cacheName).then(cache => {
+      return cache.addAll(assets);
+    })
+  );
+  self.skipWaiting();
 });
 
-self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
+// ATIVAÇÃO — remove caches antigos
+self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys().then(keys => {
+      return Promise.all(
+        keys
+          .filter(key => key !== cacheName)
+          .map(key => caches.delete(key))
+      );
+    })
+  );
+  self.clients.claim();
+});
+
+// FETCH — tenta buscar online, se offline usa o cache
+self.addEventListener("fetch", event => {
+  event.respondWith(
+    fetch(event.request)
+      .then(res => {
+        // salva no cache versões novas
+        const clone = res.clone();
+        caches.open(cacheName).then(cache => cache.put(event.request, clone));
+        return res;
+      })
+      .catch(() => caches.match(event.request))
+  );
 });
