@@ -20,277 +20,307 @@
   <!-- QR code lib -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 
-  <!-- Main styles -->
   <link rel="stylesheet" href="styles.css" />
 </head>
+
 <body>
-  <div class="app" id="app">
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="logo">♻</div>
-        <div class="title">Recicla<span>Interativo</span></div>
+<div class="app" id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="logo">♻</div>
+      <div class="title">Recicla<span>Interativo</span></div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button data-page="dashboard" class="nav-btn active"><i class="fa-solid fa-house"></i> Dashboard</button>
+      <button data-page="classify" class="nav-btn"><i class="fa-solid fa-camera"></i> Classificar</button>
+      <button data-page="quiz" class="nav-btn"><i class="fa-solid fa-question"></i> Quiz</button>
+      <button data-page="map" class="nav-btn"><i class="fa-solid fa-map"></i> Pontos</button>
+      <button data-page="ranking" class="nav-btn"><i class="fa-solid fa-ranking-star"></i> Ranking</button>
+      <button data-page="support" class="nav-btn"><i class="fa-solid fa-headset"></i> Suporte</button>
+      <button data-page="profile" class="nav-btn"><i class="fa-solid fa-user"></i> Perfil</button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button id="toggleTheme" class="icon-btn" title="Alternar tema"><i class="fa-solid fa-moon"></i></button>
+      <button id="logoutBtn" class="ghost">Resetar Usuário</button>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- HEADER -->
+    <header class="main-header">
+      <div>
+        <h2 id="pageTitle">Dashboard</h2>
+        <p class="muted" id="pageSubtitle">Bem-vindo — Bertolínia, PI</p>
       </div>
 
-      <nav class="nav" id="nav">
-        <button data-page="dashboard" class="nav-btn active"><i class="fa-solid fa-house"></i> Dashboard</button>
-        <button data-page="classify" class="nav-btn"><i class="fa-solid fa-camera"></i> Classificar</button>
-        <button data-page="quiz" class="nav-btn"><i class="fa-solid fa-question"></i> Quiz</button>
-        <button data-page="map" class="nav-btn"><i class="fa-solid fa-map"></i> Pontos</button>
-        <button data-page="ranking" class="nav-btn"><i class="fa-solid fa-ranking-star"></i> Ranking</button>
-        <button data-page="support" class="nav-btn"><i class="fa-solid fa-headset"></i> Suporte</button>
-        <button data-page="profile" class="nav-btn"><i class="fa-solid fa-user"></i> Perfil</button>
-      </nav>
-
-      <div class="sidebar-footer">
-        <button id="toggleTheme" class="icon-btn" title="Alternar tema"><i class="fa-solid fa-moon"></i></button>
-        <button id="logoutBtn" class="ghost">Resetar Usuário</button>
+      <div class="header-actions">
+        <div class="points">Pontos: <span id="topPoints">0</span></div>
+        <div id="userName" class="user">Visitante</div>
       </div>
-    </aside>
+    </header>
 
-    <main class="main">
-      <header class="main-header">
-        <div>
-          <h2 id="pageTitle">Dashboard</h2>
-          <p class="muted" id="pageSubtitle">Bem-vindo — Bertolínia, PI</p>
+    <!-- PAGES -->
+    <section class="pages">
+
+      <!-- DASHBOARD -->
+      <section id="dashboard" class="page active-page">
+
+        <div class="grid-3">
+
+          <!-- CARD 1 -->
+          <div class="card glass">
+            <h3>Classificador Rápido</h3>
+            <p>Selecione tipo ou envie imagem.</p>
+            <div class="small-actions">
+              <input id="fileInput" type="file" accept="image/*" />
+              <select id="quickSelect">
+                <option value="">— Escolher manualmente —</option>
+                <option value="Papel">Papel</option>
+                <option value="Plástico">Plástico</option>
+                <option value="Vidro">Vidro</option>
+                <option value="Metal">Metal</option>
+                <option value="Orgânico">Orgânico</option>
+              </select>
+              <button id="quickClassify" class="btn">Classificar</button>
+            </div>
+            <div class="result" id="quickResult">Resultado: —</div>
+          </div>
+
+          <!-- CARD 2 (MINI QUIZ) -->
+          <div class="card glass">
+            <h3>Quiz rápido</h3>
+            <div id="miniQuiz">
+              <div id="miniQuestion">Carregando...</div>
+              <div id="miniOptions" class="mini-options"></div>
+            </div>
+          </div>
+
+          <!-- CARD 3 (QR) -->
+          <div class="card glass">
+            <h3>QR do Usuário</h3>
+            <div id="qrPreview" class="qr-box">—</div>
+          </div>
+
         </div>
-        <div class="header-actions">
-          <div class="points">Pontos: <span id="topPoints">0</span></div>
-          <div id="userName" class="user">Visitante</div>
+
+        <div class="grid-2 mt">
+          <div class="card glass">
+            <h3>Leaderboard (top 5)</h3>
+            <ol id="leaderTop" class="ranking-list"></ol>
+          </div>
+
+          <div class="card glass">
+            <h3>Pontos por Escola</h3>
+            <div id="schoolStats">—</div>
+          </div>
         </div>
-      </header>
-
-      <section class="pages">
-        <!-- DASHBOARD -->
-        <section id="dashboard" class="page active-page">
-          <div class="grid-3">
-            <div class="card glass">
-              <h3>Classificador Rápido</h3>
-              <p>Selecione tipo ou envie imagem.</p>
-              <div class="small-actions">
-                <input id="fileInput" type="file" accept="image/*" />
-                <select id="quickSelect">
-                  <option value="">— Escolher manualmente —</option>
-                  <option value="Papel">Papel</option>
-                  <option value="Plástico">Plástico</option>
-                  <option value="Vidro">Vidro</option>
-                  <option value="Metal">Metal</option>
-                  <option value="Orgânico">Orgânico</option>
-                </select>
-                <button id="quickClassify" class="btn">Classificar</button>
-              </div>
-              <div class="result" id="quickResult">Resultado: —</div>
-              <div class="muted small">Dica: para integração IA adicione chave no Perfil.</div>
-            </div>
-
-            <div class="card glass">
-              <h3>Quiz rápido</h3>
-              <p>Responda e ganhe pontos.</p>
-              <div id="miniQuiz">
-                <div id="miniQuestion">Carregando...</div>
-                <div id="miniOptions" class="mini-options"></div>
-              </div>
-            </div>
-
-            <div class="card glass">
-              <h3>QR do Usuário</h3>
-              <div id="qrPreview" class="qr-box">—</div>
-              <div class="mt small muted">Gerar QR para crachá ou registro rápido.</div>
-            </div>
-          </div>
-
-          <div class="grid-2 mt">
-            <div class="card glass">
-              <h3>Leaderboard (top 5)</h3>
-              <ol id="leaderTop" class="ranking-list"></ol>
-            </div>
-
-            <div class="card glass">
-              <h3>Pontos por Escola</h3>
-              <div id="schoolStats">—</div>
-            </div>
-          </div>
-        </section>
-
-        <!-- CLASSIFY -->
-        <section id="classify" class="page">
-          <div class="card wide glass">
-            <h3>Classificador de Resíduos</h3>
-            <div class="cols">
-              <div class="col">
-                <label class="upload-box">
-                  <input id="fileInputFull" type="file" accept="image/*" />
-                  <span class="muted">Clique ou arraste uma imagem</span>
-                  <img id="previewImage" src="" alt="" class="preview hidden" />
-                </label>
-
-                <div class="muted small mt">Ou escolha manualmente:</div>
-                <div class="manual-buttons">
-                  <button class="pill" data-type="Papel">Papel</button>
-                  <button class="pill" data-type="Plástico">Plástico</button>
-                  <button class="pill" data-type="Vidro">Vidro</button>
-                  <button class="pill" data-type="Metal">Metal</button>
-                  <button class="pill" data-type="Orgânico">Orgânico</button>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="result large" id="classifyResult">Selecione um item ou carregue uma foto.</div>
-                <div class="tips" id="classifyTips">Dicas aparecerão aqui.</div>
-
-                <div class="actions mt">
-                  <button id="saveAction" class="btn soft">Registrar ação (+ pontos)</button>
-                  <button id="genQRUser" class="btn outline">Gerar QR Usuário</button>
-                </div>
-
-                <div class="muted small mt">Integração IA (opcional): cole sua API key no Perfil → Integrações.</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- QUIZ -->
-        <section id="quiz" class="page">
-          <div class="card glass wide">
-            <h3>Quiz Educativo — Aprenda e ganhe pontos</h3>
-            <div id="quizContainer">
-              <div id="quizQuestion" class="quiz-question">Carregando perguntas...</div>
-              <div id="quizAnswers" class="quiz-answers"></div>
-              <div id="quizFooter" class="muted small">Pergunta <span id="quizIndex">1</span> / <span id="quizTotal">1</span></div>
-            </div>
-          </div>
-        </section>
-
-        <!-- MAP -->
-        <section id="map" class="page">
-          <div class="card glass wide">
-            <h3>Pontos de Coleta — Bertolínia, PI</h3>
-
-            <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-              <input id="mapSearch" placeholder="Buscar bairro, rua, cidade ou CEP" style="flex:1;padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.06)">
-              <button id="mapSearchBtn" class="btn">Buscar</button>
-              <button id="mapMyLoc" class="btn outline">Ir para minha localização</button>
-              <button id="showSchoolsBtn" class="btn soft">Ver escolas próximas</button>
-            </div>
-
-            <div id="mapCanvas" style="height:420px;border-radius:12px;"></div>
-            <div class="mt small muted">Clique no mapa para adicionar um ponto (modo local).</div>
-            <div id="nearbyList" class="mt"></div>
-          </div>
-        </section>
-
-        <!-- RANKING -->
-        <section id="ranking" class="page">
-          <div class="card glass wide">
-            <h3>Ranking</h3>
-            <div class="filters">
-              <select id="filterSchool"><option value="">— Todas as escolas —</option></select>
-              <select id="filterClass"><option value="">— Todas as turmas —</option></select>
-            </div>
-            <ol id="rankingList" class="ranking-list"></ol>
-          </div>
-        </section>
-
-        <!-- SUPPORT -->
-        <section id="support" class="page">
-          <div class="card glass wide">
-            <h3>Suporte — Envie uma mensagem</h3>
-            <div class="support-grid">
-              <div>
-                <label>Nome</label>
-                <input id="supportName" placeholder="Seu nome" />
-                <label>Email</label>
-                <input id="supportEmail" placeholder="seu@email.com" />
-                <label>Assunto</label>
-                <input id="supportSubject" placeholder="Assunto" />
-                <label>Descrição</label>
-                <textarea id="supportMsg" rows="5" placeholder="Descreva o problema..."></textarea>
-                <div class="mt">
-                  <button id="btnSendSupport" class="btn">Enviar</button>
-                  <button id="btnClearSupport" class="btn outline">Limpar</button>
-                </div>
-              </div>
-              <div>
-                <h4>Mensagens enviadas</h4>
-                <div id="supportList" class="muted small">Nenhuma mensagem.</div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- PROFILE -->
-        <section id="profile" class="page">
-          <div class="card glass wide profile-card">
-            <h3>Perfil & Configurações</h3>
-            <div class="profile-grid">
-              <div>
-                <label>Nome</label>
-                <input id="inputName" placeholder="Seu nome" />
-                <label>Escola</label>
-                <input id="inputSchool" placeholder="Nome da escola" />
-                <label>Turma</label>
-                <input id="inputClass" placeholder="Ex: 3A" />
-                <label>Integração Google Vision (API Key)</label>
-                <input id="inputVisionKey" placeholder="(opcional) cole a key aqui" />
-                <div class="mt">
-                  <label>Foto de Perfil</label>
-                  <input id="inputAvatarFile" type="file" accept="image/*" />
-                  <div class="muted small">Preview:</div>
-                  <img id="avatarImg" class="avatar-img" src="" alt="avatar preview" />
-                </div>
-                <div class="mt">
-                  <button id="saveProfile" class="btn">Salvar Perfil</button>
-                  <button id="exportQRProfile" class="btn outline">Gerar QR Perfil</button>
-                </div>
-              </div>
-
-              <div>
-                <div class="card mini glass">
-                  <div class="avatar" id="avatarPreview">A</div>
-                  <div>
-                    <div id="profileNameLarge">Visitante</div>
-                    <div class="muted small">Pontos: <span id="profilePoints">0</span></div>
-                  </div>
-                </div>
-
-                <div class="card mini glass mt">
-                  <h4>Opções</h4>
-                  <label class="switch"><input id="toggleDark" type="checkbox" /><span class="slider"></span></label> <span class="muted">Modo escuro</span>
-                  <div class="mt small">
-                    <button id="resetAll" class="ghost">Resetar dados locais</button>
-                  </div>
-                </div>
-
-                <div class="card mini glass mt">
-                  <h4>Exportar / Importar</h4>
-                  <p class="small muted">Baixe seus dados locais (JSON) ou importe.</p>
-                  <div class="mt">
-                    <button id="btnExport" class="btn">Exportar dados</button>
-                    <input id="importFile" type="file" accept=".json" class="hidden" />
-                    <button id="btnImport" class="btn outline">Importar</button>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-        </section>
       </section>
-    </main>
-  </div>
 
-  <!-- QR modal -->
-  <div id="qrModal" class="modal hidden">
-    <div class="modal-card">
-      <h3>QR Code</h3>
-      <div id="qrCanvas" class="qr-canvas"></div>
-      <div class="mt">
-        <button id="downloadQR" class="btn">Baixar PNG</button>
-        <button id="closeQR" class="btn outline">Fechar</button>
-      </div>
+      <!-- CLASSIFY -->
+      <section id="classify" class="page">
+        <div class="card glass wide">
+          <h3>Classificador de Resíduos</h3>
+
+          <div class="cols">
+
+            <div class="col">
+              <label class="upload-box">
+                <input id="fileInputFull" type="file" accept="image/*" />
+                <span class="muted">Selecionar ou arrastar imagem</span>
+                <img id="previewImage" class="preview hidden" />
+              </label>
+
+              <div class="manual-buttons mt">
+                <button class="pill" data-type="Papel">Papel</button>
+                <button class="pill" data-type="Plástico">Plástico</button>
+                <button class="pill" data-type="Vidro">Vidro</button>
+                <button class="pill" data-type="Metal">Metal</button>
+                <button class="pill" data-type="Orgânico">Orgânico</button>
+              </div>
+            </div>
+
+            <div class="col">
+              <div id="classifyResult" class="result large">Selecione um item ou foto.</div>
+              <div id="classifyTips" class="tips"></div>
+
+              <div class="actions mt">
+                <button id="saveAction" class="btn soft">Registrar ação (+ pontos)</button>
+                <button id="genQRUser" class="btn outline">Gerar QR Usuário</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- QUIZ COMPLETO -->
+      <section id="quiz" class="page">
+        <div class="card glass wide">
+          <h3>Quiz Educativo — Aprenda e ganhe pontos</h3>
+
+          <div id="quizContainer">
+            <div id="quizQuestion" class="quiz-question">Carregando perguntas...</div>
+            <div id="quizAnswers" class="quiz-answers"></div>
+
+            <div class="muted small mt">
+              Pergunta <span id="quizIndex">1</span> /
+              <span id="quizTotal">3</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- MAPA -->
+      <section id="map" class="page">
+        <div class="card glass wide">
+          <h3>Pontos de Coleta — Bertolínia, PI</h3>
+
+          <div style="display:flex;gap:8px;margin-bottom:10px;">
+            <input id="mapSearch" placeholder="Buscar endereço" style="flex:1">
+            <button id="mapSearchBtn" class="btn">Buscar</button>
+            <button id="mapMyLoc" class="btn outline">Minha localização</button>
+            <button id="showSchoolsBtn" class="btn soft">Escolas</button>
+          </div>
+
+          <div id="mapCanvas" style="height:420px;border-radius:12px;"></div>
+          <div class="mt small muted">Clique no mapa para adicionar pontos.</div>
+
+          <div id="nearbyList" class="mt"></div>
+        </div>
+      </section>
+
+      <!-- RANKING -->
+      <section id="ranking" class="page">
+        <div class="card glass wide">
+          <h3>Ranking</h3>
+
+          <select id="filterSchool" class="mt">
+            <option value="">— Todas as escolas —</option>
+          </select>
+
+          <ol id="rankingList" class="ranking-list mt"></ol>
+        </div>
+      </section>
+
+      <!-- SUPORTE -->
+      <section id="support" class="page">
+        <div class="card glass wide">
+          <h3>Suporte</h3>
+
+          <div class="support-grid mt">
+
+            <div>
+              <label>Nome</label>
+              <input id="supportName" />
+
+              <label>Email</label>
+              <input id="supportEmail" />
+
+              <label>Assunto</label>
+              <input id="supportSubject" />
+
+              <label>Descrição</label>
+              <textarea id="supportMsg" rows="5"></textarea>
+
+              <div class="mt">
+                <button id="btnSendSupport" class="btn">Enviar</button>
+                <button id="btnClearSupport" class="btn outline">Limpar</button>
+              </div>
+            </div>
+
+            <div>
+              <h4>Mensagens enviadas</h4>
+              <div id="supportList" class="muted small">Nenhuma mensagem.</div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <!-- PERFIL -->
+      <section id="profile" class="page">
+        <div class="card glass wide profile-card">
+          <h3>Perfil & Configurações</h3>
+
+          <div class="profile-grid">
+
+            <div>
+              <label>Nome</label>
+              <input id="inputName" />
+
+              <label>Escola</label>
+              <input id="inputSchool" />
+
+              <label>Turma</label>
+              <input id="inputClass" />
+
+              <label>API Key (opcional)</label>
+              <input id="inputVisionKey" />
+
+              <div class="mt">
+                <label>Foto de Perfil</label>
+                <input id="inputAvatarFile" type="file" accept="image/*" />
+                <div class="muted small">Preview:</div>
+                <img id="avatarImg" class="avatar-img" />
+              </div>
+
+              <div class="mt">
+                <button id="saveProfile" class="btn">Salvar</button>
+                <button id="exportQRProfile" class="btn outline">Gerar QR Perfil</button>
+              </div>
+            </div>
+
+            <div>
+
+              <div class="card mini glass">
+                <div class="avatar" id="avatarPreview">A</div>
+                <div>
+                  <div id="profileNameLarge">Visitante</div>
+                  <div class="muted small">Pontos: <span id="profilePoints">0</span></div>
+                </div>
+              </div>
+
+              <div class="card mini glass mt">
+                <h4>Modo Escuro</h4>
+                <label class="switch"><input id="toggleDark" type="checkbox" /><span class="slider"></span></label>
+              </div>
+
+              <div class="card mini glass mt">
+                <h4>Exportar / Importar</h4>
+                <button id="btnExport" class="btn">Exportar</button>
+                <input id="importFile" type="file" accept=".json" class="hidden" />
+                <button id="btnImport" class="btn outline">Importar</button>
+                <button id="resetAll" class="ghost mt">Resetar dados</button>
+              </div>
+
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </section>
+  </main>
+</div>
+
+<!-- MODAL QR -->
+<div id="qrModal" class="modal hidden">
+  <div class="modal-card">
+    <h3>QR Code</h3>
+    <div id="qrCanvas" class="qr-canvas"></div>
+    <div class="mt">
+      <button id="downloadQR" class="btn">Baixar PNG</button>
+      <button id="closeQR" class="btn outline">Fechar</button>
     </div>
   </div>
+</div>
 
-  <!-- Main script -->
-  <script src="script.js"></script>
+<script src="script.js"></script>
 </body>
   </html>
