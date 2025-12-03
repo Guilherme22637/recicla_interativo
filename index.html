@@ -1,326 +1,101 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Recicla Interativo</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Recicla Interativo</title>
 
-  <!-- Manifest (PWA) -->
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f1724">
+<!-- Manifest + PWA -->
+<link rel="manifest" href="manifest.json">
 
-  <!-- Fonts & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+<!-- Leaflet Map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <!-- Leaflet (map) -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+<!-- CSS -->
+<link rel="stylesheet" href="styles.css">
 
-  <!-- QR code lib -->
-  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
-
-  <link rel="stylesheet" href="styles.css" />
 </head>
-
 <body>
-<div class="app" id="app">
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="brand">
-      <div class="logo">♻</div>
-      <div class="title">Recicla<span>Interativo</span></div>
-    </div>
+<header>
+    <h1 id="pageTitle">Início</h1>
+</header>
 
-    <nav class="nav" id="nav">
-      <button data-page="dashboard" class="nav-btn active"><i class="fa-solid fa-house"></i> Dashboard</button>
-      <button data-page="classify" class="nav-btn"><i class="fa-solid fa-camera"></i> Classificar</button>
-      <button data-page="quiz" class="nav-btn"><i class="fa-solid fa-question"></i> Quiz</button>
-      <button data-page="map" class="nav-btn"><i class="fa-solid fa-map"></i> Pontos</button>
-      <button data-page="ranking" class="nav-btn"><i class="fa-solid fa-ranking-star"></i> Ranking</button>
-      <button data-page="support" class="nav-btn"><i class="fa-solid fa-headset"></i> Suporte</button>
-      <button data-page="profile" class="nav-btn"><i class="fa-solid fa-user"></i> Perfil</button>
-    </nav>
+<!-- Navegação inferior -->
+<nav class="bottom-nav">
+    <button class="nav-btn active" data-page="home">Início</button>
+    <button class="nav-btn" data-page="mapa">Coleta</button>
+    <button class="nav-btn" data-page="quiz">Quiz</button>
+    <button class="nav-btn" data-page="ranking">Ranking</button>
+    <button class="nav-btn" data-page="perfil">Perfil</button>
+</nav>
 
-    <div class="sidebar-footer">
-      <button id="toggleTheme" class="icon-btn" title="Alternar tema"><i class="fa-solid fa-moon"></i></button>
-      <button id="logoutBtn" class="ghost">Resetar Usuário</button>
-    </div>
-  </aside>
+<!-- PAGINAS -->
+<section id="home" class="page active-page">
+    <h2>Bem-vindo ao Recicla Interativo</h2>
+    <p>Aprenda, recicle e ganhe pontos!</p>
+    <div id="qrPreview"></div>
+</section>
 
-  <!-- MAIN -->
-  <main class="main">
+<!-- MAPA -->
+<section id="mapa" class="page">
+    <h2>Pontos de Coleta</h2>
+    <input id="mapSearch" placeholder="Buscar local...">
+    <button id="mapSearchBtn">Buscar</button>
+    <button id="mapMyLoc">Minha localização</button>
+    <div id="mapCanvas"></div>
+    <div id="nearbyList"></div>
+</section>
 
-    <!-- HEADER -->
-    <header class="main-header">
-      <div>
-        <h2 id="pageTitle">Dashboard</h2>
-        <p class="muted" id="pageSubtitle">Bem-vindo — Bertolínia, PI</p>
-      </div>
+<!-- QUIZ -->
+<section id="quiz" class="page">
+    <h2>Quiz de Reciclagem</h2>
+    <div id="quizQuestion"></div>
+    <div id="quizAnswers"></div>
+</section>
 
-      <div class="header-actions">
-        <div class="points">Pontos: <span id="topPoints">0</span></div>
-        <div id="userName" class="user">Visitante</div>
-      </div>
-    </header>
+<!-- RANKING -->
+<section id="ranking" class="page">
+    <h2>Ranking</h2>
+    <ul id="rankingList"></ul>
+</section>
 
-    <!-- PAGES -->
-    <section class="pages">
+<!-- PERFIL -->
+<section id="perfil" class="page">
+    <h2>Meu Perfil</h2>
 
-      <!-- DASHBOARD -->
-      <section id="dashboard" class="page active-page">
+    <label>Nome:</label>
+    <input id="inputName">
 
-        <div class="grid-3">
+    <label>Escola:</label>
+    <input id="inputSchool">
 
-          <!-- CARD 1 -->
-          <div class="card glass">
-            <h3>Classificador Rápido</h3>
-            <p>Selecione tipo ou envie imagem.</p>
-            <div class="small-actions">
-              <input id="fileInput" type="file" accept="image/*" />
-              <select id="quickSelect">
-                <option value="">— Escolher manualmente —</option>
-                <option value="Papel">Papel</option>
-                <option value="Plástico">Plástico</option>
-                <option value="Vidro">Vidro</option>
-                <option value="Metal">Metal</option>
-                <option value="Orgânico">Orgânico</option>
-              </select>
-              <button id="quickClassify" class="btn">Classificar</button>
-            </div>
-            <div class="result" id="quickResult">Resultado: —</div>
-          </div>
+    <label>Turma:</label>
+    <input id="inputClass">
 
-          <!-- CARD 2 (MINI QUIZ) -->
-          <div class="card glass">
-            <h3>Quiz rápido</h3>
-            <div id="miniQuiz">
-              <div id="miniQuestion">Carregando...</div>
-              <div id="miniOptions" class="mini-options"></div>
-            </div>
-          </div>
+    <button id="saveProfile">Salvar Perfil</button>
 
-          <!-- CARD 3 (QR) -->
-          <div class="card glass">
-            <h3>QR do Usuário</h3>
-            <div id="qrPreview" class="qr-box">—</div>
-          </div>
+    <h3>Pontos: <span id="profilePoints">0</span></h3>
+    <button id="genQRUser">Gerar QR Code</button>
 
-        </div>
-
-        <div class="grid-2 mt">
-          <div class="card glass">
-            <h3>Leaderboard (top 5)</h3>
-            <ol id="leaderTop" class="ranking-list"></ol>
-          </div>
-
-          <div class="card glass">
-            <h3>Pontos por Escola</h3>
-            <div id="schoolStats">—</div>
-          </div>
-        </div>
-      </section>
-
-      <!-- CLASSIFY -->
-      <section id="classify" class="page">
-        <div class="card glass wide">
-          <h3>Classificador de Resíduos</h3>
-
-          <div class="cols">
-
-            <div class="col">
-              <label class="upload-box">
-                <input id="fileInputFull" type="file" accept="image/*" />
-                <span class="muted">Selecionar ou arrastar imagem</span>
-                <img id="previewImage" class="preview hidden" />
-              </label>
-
-              <div class="manual-buttons mt">
-                <button class="pill" data-type="Papel">Papel</button>
-                <button class="pill" data-type="Plástico">Plástico</button>
-                <button class="pill" data-type="Vidro">Vidro</button>
-                <button class="pill" data-type="Metal">Metal</button>
-                <button class="pill" data-type="Orgânico">Orgânico</button>
-              </div>
-            </div>
-
-            <div class="col">
-              <div id="classifyResult" class="result large">Selecione um item ou foto.</div>
-              <div id="classifyTips" class="tips"></div>
-
-              <div class="actions mt">
-                <button id="saveAction" class="btn soft">Registrar ação (+ pontos)</button>
-                <button id="genQRUser" class="btn outline">Gerar QR Usuário</button>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      <!-- QUIZ COMPLETO -->
-      <section id="quiz" class="page">
-        <div class="card glass wide">
-          <h3>Quiz Educativo — Aprenda e ganhe pontos</h3>
-
-          <div id="quizContainer">
-            <div id="quizQuestion" class="quiz-question">Carregando perguntas...</div>
-            <div id="quizAnswers" class="quiz-answers"></div>
-
-            <div class="muted small mt">
-              Pergunta <span id="quizIndex">1</span> /
-              <span id="quizTotal">3</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- MAPA -->
-      <section id="map" class="page">
-        <div class="card glass wide">
-          <h3>Pontos de Coleta — Bertolínia, PI</h3>
-
-          <div style="display:flex;gap:8px;margin-bottom:10px;">
-            <input id="mapSearch" placeholder="Buscar endereço" style="flex:1">
-            <button id="mapSearchBtn" class="btn">Buscar</button>
-            <button id="mapMyLoc" class="btn outline">Minha localização</button>
-            <button id="showSchoolsBtn" class="btn soft">Escolas</button>
-          </div>
-
-          <div id="mapCanvas" style="height:420px;border-radius:12px;"></div>
-          <div class="mt small muted">Clique no mapa para adicionar pontos.</div>
-
-          <div id="nearbyList" class="mt"></div>
-        </div>
-      </section>
-
-      <!-- RANKING -->
-      <section id="ranking" class="page">
-        <div class="card glass wide">
-          <h3>Ranking</h3>
-
-          <select id="filterSchool" class="mt">
-            <option value="">— Todas as escolas —</option>
-          </select>
-
-          <ol id="rankingList" class="ranking-list mt"></ol>
-        </div>
-      </section>
-
-      <!-- SUPORTE -->
-      <section id="support" class="page">
-        <div class="card glass wide">
-          <h3>Suporte</h3>
-
-          <div class="support-grid mt">
-
-            <div>
-              <label>Nome</label>
-              <input id="supportName" />
-
-              <label>Email</label>
-              <input id="supportEmail" />
-
-              <label>Assunto</label>
-              <input id="supportSubject" />
-
-              <label>Descrição</label>
-              <textarea id="supportMsg" rows="5"></textarea>
-
-              <div class="mt">
-                <button id="btnSendSupport" class="btn">Enviar</button>
-                <button id="btnClearSupport" class="btn outline">Limpar</button>
-              </div>
-            </div>
-
-            <div>
-              <h4>Mensagens enviadas</h4>
-              <div id="supportList" class="muted small">Nenhuma mensagem.</div>
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-      <!-- PERFIL -->
-      <section id="profile" class="page">
-        <div class="card glass wide profile-card">
-          <h3>Perfil & Configurações</h3>
-
-          <div class="profile-grid">
-
-            <div>
-              <label>Nome</label>
-              <input id="inputName" />
-
-              <label>Escola</label>
-              <input id="inputSchool" />
-
-              <label>Turma</label>
-              <input id="inputClass" />
-
-              <label>API Key (opcional)</label>
-              <input id="inputVisionKey" />
-
-              <div class="mt">
-                <label>Foto de Perfil</label>
-                <input id="inputAvatarFile" type="file" accept="image/*" />
-                <div class="muted small">Preview:</div>
-                <img id="avatarImg" class="avatar-img" />
-              </div>
-
-              <div class="mt">
-                <button id="saveProfile" class="btn">Salvar</button>
-                <button id="exportQRProfile" class="btn outline">Gerar QR Perfil</button>
-              </div>
-            </div>
-
-            <div>
-
-              <div class="card mini glass">
-                <div class="avatar" id="avatarPreview">A</div>
-                <div>
-                  <div id="profileNameLarge">Visitante</div>
-                  <div class="muted small">Pontos: <span id="profilePoints">0</span></div>
-                </div>
-              </div>
-
-              <div class="card mini glass mt">
-                <h4>Modo Escuro</h4>
-                <label class="switch"><input id="toggleDark" type="checkbox" /><span class="slider"></span></label>
-              </div>
-
-              <div class="card mini glass mt">
-                <h4>Exportar / Importar</h4>
-                <button id="btnExport" class="btn">Exportar</button>
-                <input id="importFile" type="file" accept=".json" class="hidden" />
-                <button id="btnImport" class="btn outline">Importar</button>
-                <button id="resetAll" class="ghost mt">Resetar dados</button>
-              </div>
-
-            </div>
-
-          </div>
-        </div>
-      </section>
-
-    </section>
-  </main>
-</div>
+    <div id="profileAvatar"><span id="avatarPreview"></span></div>
+</section>
 
 <!-- MODAL QR -->
-<div id="qrModal" class="modal hidden">
-  <div class="modal-card">
-    <h3>QR Code</h3>
-    <div id="qrCanvas" class="qr-canvas"></div>
-    <div class="mt">
-      <button id="downloadQR" class="btn">Baixar PNG</button>
-      <button id="closeQR" class="btn outline">Fechar</button>
+<div id="qrModal" class="hidden">
+    <div class="qr-box">
+        <div id="qrCanvas"></div>
+        <button id="downloadQR">Baixar</button>
+        <button id="closeQR">Fechar</button>
     </div>
-  </div>
 </div>
 
+<!-- LIBRARIES -->
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.0/build/qrcode.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<!-- JS -->
 <script src="script.js"></script>
+
 </body>
-  </html>
+</html>
