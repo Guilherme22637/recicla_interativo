@@ -1,11 +1,10 @@
-/* Recicla Interativo — script.js FINAL
-   ✔ Tema escuro fixo
-   ✔ Sidebar sempre visível no celular
+/* Recicla Interativo — SCRIPT FINAL
    ✔ Quiz funcionando
    ✔ QR funcionando
-   ✔ Mapa funcional
-   ✔ Todas páginas funcionando
-   ✔ Navegação corrigida
+   ✔ Navegação funcionando
+   ✔ Suporte funcionando
+   ✔ Mapa + geolocalização funcionando
+   ✔ Classificador funcionando
 */
 
 /* ---------- Helpers ---------- */
@@ -17,23 +16,30 @@ const ls = (k,v) => v===undefined ? JSON.parse(localStorage.getItem(k)||'null') 
 /* ---------- Default City (Bertolínia PI) ---------- */
 const BERT = { lat: -7.64123, lng: -43.9499, zoom: 13 };
 
-/* ---------- Default Data ---------- */
+/* ---------- QUIZ — 10 perguntas + rodadas infinitas ---------- */
+const QUIZ_MASTER = [
+  { q:"O que significa reciclar?", opts:["Reutilizar materiais","Jogar no lixo","Queimar resíduos"], a:0 },
+  { q:"Qual cor da lixeira para papel?", opts:["Azul","Verde","Amarelo"], a:0 },
+  { q:"Qual material demora mais a decompor?", opts:["Papel","Vidro","Fruta"], a:1 },
+  { q:"Qual desses é reciclável?", opts:["Papel limpo","Papel engordurado","Lenço usado"], a:0 },
+  { q:"Qual ajuda o meio ambiente?", opts:["Economizar energia","Deixar luz acesa","Desperdiçar água"], a:0 },
+  { q:"Qual fonte é renovável?", opts:["Carvão","Solar","Petróleo"], a:1 },
+  { q:"Um grande causador de poluição?", opts:["Carros","Plantas","Peixes"], a:0 },
+  { q:"O que é reflorestamento?", opts:["Plantar árvores","Cortar árvores","Queimar mato"], a:0 },
+  { q:"Como reduzir lixo?", opts:["Reutilizar","Usar e jogar muito","Comprar demais"], a:0 },
+  { q:"O que devemos fazer com óleo de cozinha?", opts:["Descartar no esgoto","Guardar e levar ao ponto de coleta","Jogar no quintal"], a:1 }
+];
+
+/* ---------- Default State ---------- */
 const defaultState = {
   users: [],
   currentUserId: null,
-
-  quiz: [
-    { q: "Qual cor representa o lixo plástico?", opts:["Amarelo", "Vermelho", "Verde"], a:1 },
-    { q: "O que fazer com pilhas usadas?", opts:["Jogar no lixo comum", "Levar a ponto de coleta", "Enterrar"], a:1 },
-    { q: "Papel engordurado pode ser reciclado?", opts:["Sim", "Não", "Depende"], a:1 }
-  ],
-
+  quiz: QUIZ_MASTER,
   markers: [
     { title:"EcoPonto Central — Praça da Matriz", lat:-7.6410, lng:-43.9490 },
     { title:"Coleta de Pilhas — Prefeitura", lat:-7.6425, lng:-43.9512 },
     { title:"Ponto Reciclagem — Bairro Nova", lat:-7.6392, lng:-43.9475 }
   ],
-
   support: [],
   visionKey: ""
 };
@@ -41,10 +47,7 @@ const defaultState = {
 /* ---------- Load / Save ---------- */
 function loadState(){
   const s = ls('ri_state');
-  if(!s){
-    ls('ri_state', defaultState);
-    return defaultState;
-  }
+  if(!s){ ls('ri_state', defaultState); return defaultState; }
   return s;
 }
 
@@ -88,12 +91,9 @@ document.addEventListener("DOMContentLoaded", ()=>{
 /* ---------- Navigation ---------- */
 function bindNavigation(){
   qsa(".nav-btn").forEach(btn=>{
-    btn.addEventListener("click", ()=>{
-      navTo(btn.dataset.page);
-    });
+    btn.addEventListener("click", ()=> navTo(btn.dataset.page));
   });
 }
-
 function navTo(page){
   qsa(".nav-btn").forEach(b=>b.classList.remove("active"));
   qs(`.nav-btn[data-page="${page}"]`)?.classList.add("active");
@@ -113,39 +113,39 @@ function renderProfile(){
   $("userName").innerText = u.name;
 
   $("inputName").value = u.name;
-  $("inputSchool").value = u.school || "";
-  $("inputClass").value = u.class || "";
-  $("inputVisionKey").value = store.get().visionKey || "";
+  $("inputSchool").value = u.school;
+  $("inputClass").value = u.class;
+  $("inputVisionKey").value = store.get().visionKey;
 
-  if(u.avatarData){
-    $("avatarImg").src = u.avatarData;
-  }
+  if(u.avatarData) $("avatarImg").src = u.avatarData;
 }
 
 function bindActions(){
-  $("saveProfile").addEventListener("click", saveProfile);
-  $("inputAvatarFile").addEventListener("change", e=> avatarUpload(e.target.files[0]));
+  $("saveProfile").onclick = saveProfile;
+  $("inputAvatarFile").onchange = e => avatarUpload(e.target.files[0]);
 
-  $("quickClassify").addEventListener("click", quickClassify);
-  $("fileInput").addEventListener("change", e=> handleFile(e.target.files[0], "quick"));
-  $("fileInputFull").addEventListener("change", e=> handleFile(e.target.files[0], "full"));
+  $("quickClassify").onclick = quickClassify;
+  $("fileInput").onchange = e => handleFile(e.target.files[0], "quick");
+  $("fileInputFull").onchange = e => handleFile(e.target.files[0], "full");
 
-  qsa(".pill").forEach(b=> b.addEventListener("click", ()=> manualClassify(b.dataset.type)));
+  qsa(".pill").forEach(b => b.onclick = () => manualClassify(b.dataset.type));
 
-  $("saveAction").addEventListener("click", saveAction);
-  $("genQRUser").addEventListener("click", openQRForCurrentUser);
+  $("saveAction").onclick = saveAction;
+  $("genQRUser").onclick = openQRForCurrentUser;
 
-  $("btnExport").addEventListener("click", exportData);
-  $("btnImport").addEventListener("click", ()=> $("importFile").click());
-  $("importFile").addEventListener("change", importData);
-  $("resetAll").addEventListener("click", ()=>{ if(confirm("Resetar tudo?")) store.reset(); });
+  $("btnExport").onclick = exportData;
+  $("btnImport").onclick = () => $("importFile").click();
+  $("importFile").onchange = importData;
+  $("resetAll").onclick = () => { if(confirm("Resetar tudo?")) store.reset(); };
 
-  $("btnSendSupport").addEventListener("click", sendSupport);
-  $("btnClearSupport").addEventListener("click", clearSupportForm);
+  $("btnSendSupport").onclick = sendSupport;
+  $("btnClearSupport").onclick = clearSupportForm;
 
-  $("mapMyLoc").addEventListener("click", goToMyLocation);
-  $("mapSearchBtn").addEventListener("click", ()=> performGeocode($("mapSearch").value));
-  $("showSchoolsBtn").addEventListener("click", fetchNearbySchools);
+  $("mapMyLoc").onclick = goToMyLocation;
+  $("mapSearchBtn").onclick = () => performGeocode($("mapSearch").value);
+  $("showSchoolsBtn").onclick = fetchNearbySchools;
+
+  $("closeQR").onclick = () => $("qrModal").classList.add("hidden");
 }
 
 /* ---------- Save Profile ---------- */
@@ -154,10 +154,9 @@ function saveProfile(){
   u.name = $("inputName").value.trim() || "Visitante";
   u.school = $("inputSchool").value.trim();
   u.class = $("inputClass").value.trim();
-
   store.get().visionKey = $("inputVisionKey").value.trim();
-  store.save();
 
+  store.save();
   renderProfile();
   renderLeaderboard();
   renderDashboard();
@@ -185,45 +184,34 @@ function handleFile(file, mode){
     if(mode==="quick"){
       $("quickResult").innerText = "Resultado: " + heuristicFromFilename(file.name);
     } else {
-      $("classifyResult").innerText = "Analisado (manual)";
-      $("classifyTips").innerText = "Use Registrar ação ou QR.";
+      $("classifyResult").innerText = "Analisado";
+      $("classifyTips").innerText = "Use registrar ação ou QR.";
     }
   };
   r.readAsDataURL(file);
 }
 
-function heuristicFromFilename(name){
-  const t = name.toLowerCase();
+function heuristicFromFilename(n){
+  const t = n.toLowerCase();
   if(t.includes("plast")) return "Plástico";
-  if(t.includes("vidro")||t.includes("glass")) return "Vidro";
-  if(t.includes("papel")||t.includes("paper")) return "Papel";
-  if(t.includes("metal")||t.includes("can")) return "Metal";
+  if(t.includes("vidro")) return "Vidro";
+  if(t.includes("papel")) return "Papel";
+  if(t.includes("metal")) return "Metal";
   return "Desconhecido";
 }
 
 function manualClassify(type){
   $("classifyResult").innerText = type;
-  $("classifyTips").innerText = tipsFor(type);
+  $("classifyTips").innerText = "Categoria escolhida: " + type;
 }
 
 function quickClassify(){
   const sel = $("quickSelect").value;
-  if(!sel) return alert("Escolha um tipo.");
+  if(!sel) return alert("Escolha algo.");
   $("quickResult").innerText = "Resultado: " + sel;
 }
 
-function tipsFor(cat){
-  switch(cat.toLowerCase()){
-    case "papel": return "Papéis limpos e secos.";
-    case "plástico": return "Lave embalagens plásticas.";
-    case "vidro": return "Evite quebrar o vidro.";
-    case "metal": return "Metais limpos.";
-    case "orgânico": return "Compostagem recomendada.";
-    default: return "Categoria desconhecida.";
-  }
-}
-
-/* ---------- Save Action (+points) ---------- */
+/* ---------- Save Action (points) ---------- */
 function saveAction(){
   curUser().points += 5;
   store.save();
@@ -232,13 +220,13 @@ function saveAction(){
   alert("Ação registrada! +5 pts");
 }
 
-/* ---------- QR Code ---------- */
+/* ---------- QR ---------- */
 function openQRForCurrentUser(){
   const u = curUser();
-  const text = `${u.name} | Pontos: ${u.points}`;
-
+  const txt = `${u.name} | Pontos: ${u.points}`;
+  
   const canvas = document.createElement("canvas");
-  QRCode.toCanvas(canvas, text, {width:220}).then(()=>{
+  QRCode.toCanvas(canvas, txt, {width:220}).then(()=>{
     $("qrCanvas").innerHTML = "";
     $("qrCanvas").appendChild(canvas);
     $("qrModal").classList.remove("hidden");
@@ -246,20 +234,18 @@ function openQRForCurrentUser(){
   });
 }
 
-$("closeQR").addEventListener("click", ()=> $("qrModal").classList.add("hidden"));
-
-function downloadQR(){
-  const url = $("downloadQR").dataset.url;
+$("downloadQR").onclick = () => {
   const a = document.createElement("a");
-  a.href = url;
-  a.download = "qr_usuario.png";
+  a.href = $("downloadQR").dataset.url;
+  a.download = "qr.png";
   a.click();
-}
+};
 
-/* ---------- MINI QUIZ (Dashboard) ---------- */
+/* ---------- MINI QUIZ ---------- */
 function initMiniQuiz(){
-  const q = store.get().quiz[0];
+  const q = QUIZ_MASTER[Math.floor(Math.random()*QUIZ_MASTER.length)];
   $("miniQuestion").innerText = q.q;
+
   const box = $("miniOptions");
   box.innerHTML = "";
 
@@ -280,25 +266,28 @@ function initMiniQuiz(){
   });
 }
 
-/* ---------- FULL QUIZ ---------- */
+/* ---------- FULL QUIZ (10 perguntas por rodada) ---------- */
 let quizIndex = 0;
+let QUIZ_ROUND = [...QUIZ_MASTER];
 
 function initFullQuiz(){
-  $("quizTotal").innerText = store.get().quiz.length;
+  shuffle(QUIZ_ROUND);
+  quizIndex = 0;
+  $("quizTotal").innerText = QUIZ_ROUND.length;
   renderQuizQuestion();
 }
 
 function renderQuizQuestion(){
-  const questions = store.get().quiz;
-
-  if(quizIndex >= questions.length){
+  if(quizIndex >= QUIZ_ROUND.length){
     $("quizQuestion").innerText = "Quiz concluído!";
     $("quizAnswers").innerHTML = "";
     quizIndex = 0;
+    shuffle(QUIZ_ROUND);
     return;
   }
 
-  const q = questions[quizIndex];
+  const q = QUIZ_ROUND[quizIndex];
+
   $("quizQuestion").innerText = q.q;
   $("quizIndex").innerText = quizIndex+1;
 
@@ -323,23 +312,22 @@ function renderQuizQuestion(){
   });
 }
 
-/* ---------- Leaderboard ---------- */
-function renderLeaderboard(){
-  const users = store.get().users.slice().sort((a,b)=> (b.points||0)-(a.points||0));
-  $("leaderTop").innerHTML = users.slice(0,5)
-    .map(u=> `<li>${u.name} <span class="muted">${u.points} pts</span></li>`)
-    .join("");
-
-  renderRankingList(users);
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]] = [arr[j],arr[i]];
+  }
 }
 
-function renderRankingList(users){
-  $("rankingList").innerHTML = users.map(u=>`
-    <li>${u.name}
-      <div><small class="muted">${u.school||"-"} / ${u.class||"-"}</small> 
-      <strong>${u.points} pts</strong></div>
-    </li>
-  `).join("");
+/* ---------- Leaderboard ---------- */
+function renderLeaderboard(){
+  const users = store.get().users.slice().sort((a,b)=>b.points-a.points);
+  $("leaderTop").innerHTML = users.slice(0,5)
+    .map(u => `<li>${u.name} <span class="muted">${u.points} pts</span></li>`).join("");
+
+  $("rankingList").innerHTML = users
+    .map(u => `<li>${u.name}<div><small class="muted">${u.school||"-"} / ${u.class||"-"}</small> <strong>${u.points} pts</strong></div></li>`)
+    .join("");
 }
 
 /* ---------- Dashboard ---------- */
@@ -348,17 +336,15 @@ function renderDashboard(){
   $("topPoints").innerText = u.points;
 
   const groups = {};
-  store.get().users.forEach(u=>{
-    if(u.school) groups[u.school] = (groups[u.school]||0) + (u.points||0);
+  store.get().users.forEach(x=>{
+    if(x.school) groups[x.school]=(groups[x.school]||0)+(x.points||0);
   });
-
   $("schoolStats").innerHTML = Object.entries(groups).length
-    ? Object.entries(groups).map(([s,p])=> `<div>${s}: <strong>${p} pts</strong></div>`).join("")
+    ? Object.entries(groups).map(([s,p]) => `<div>${s}: <strong>${p} pts</strong></div>`).join("")
     : "<div class='muted'>Nenhuma escola registrada</div>";
 
-  const text = `${u.name}`;
   const canvas = document.createElement("canvas");
-  QRCode.toCanvas(canvas, text, {width:110}).then(()=>{
+  QRCode.toCanvas(canvas, `${u.name}`, {width:110}).then(()=>{
     $("qrPreview").innerHTML = "";
     $("qrPreview").appendChild(canvas);
   });
@@ -366,29 +352,23 @@ function renderDashboard(){
 
 /* ---------- Export / Import ---------- */
 function exportData(){
-  const blob = new Blob([JSON.stringify(store.get(),null,2)], {type:"application/json"});
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(blob);
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(store.get(),null,2)],{type:"application/json"}));
   a.download = "recicla_data.json";
   a.click();
 }
-
 function importData(e){
-  const file = e.target.files[0];
-  if(!file) return;
-
+  const f = e.target.files[0];
+  if(!f) return;
   const r = new FileReader();
   r.onload = ()=>{
     try{
-      const json = JSON.parse(r.result);
-      ls("ri_state", json);
-      alert("Importado! Recarregando...");
+      ls("ri_state", JSON.parse(r.result));
+      alert("Importado!");
       location.reload();
-    } catch(err){
-      alert("Arquivo inválido");
-    }
+    } catch(err){ alert("Arquivo inválido."); }
   };
-  r.readAsText(file);
+  r.readAsText(f);
 }
 
 /* ---------- Support ---------- */
@@ -401,29 +381,25 @@ function sendSupport(){
   if(!msg) return alert("Escreva a mensagem.");
 
   store.get().support.push({
-    id: genId(),
-    name,
-    email,
-    subject,
-    msg,
-    date: new Date().toISOString()
+    id:genId(),
+    name,email,subject,msg,
+    date:new Date().toISOString()
   });
-
   store.save();
   renderSupportList();
-  alert("Mensagem enviada (local).");
+  alert("Mensagem salva.");
 }
 
 function renderSupportList(){
   const arr = store.get().support;
   $("supportList").innerHTML = arr.length
-    ? arr.map(m=> `
-        <div style="margin-bottom:10px;border-bottom:1px dashed rgba(255,255,255,0.1);padding-bottom:6px;">
-          <b>${m.subject}</b><br>
-          <small class="muted">${m.name} — ${new Date(m.date).toLocaleString()}</small>
-          <div style="margin-top:5px">${m.msg}</div>
-        </div>
-      `).join("")
+    ? arr.map(m => `
+      <div style="margin-bottom:10px;border-bottom:1px dashed #ffffff33;padding-bottom:6px;">
+        <b>${m.subject}</b><br>
+        <small class="muted">${m.name} — ${new Date(m.date).toLocaleString()}</small>
+        <div style="margin-top:5px">${m.msg}</div>
+      </div>
+    `).join("")
     : "Nenhuma mensagem.";
 }
 
@@ -435,14 +411,13 @@ function clearSupportForm(){
 }
 
 /* ---------- MAP ---------- */
-let map, leafletMarkers = [];
+let map;
+let leafletMarkers=[];
 
 function initMap(){
   map = L.map("mapCanvas").setView([BERT.lat, BERT.lng], BERT.zoom);
 
-  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-    maxZoom:19
-  }).addTo(map);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19}).addTo(map);
 
   renderMarkers();
 
@@ -454,12 +429,10 @@ function initMap(){
       L.circle([lat,lng], {radius:60,color:"#22c55e"}).addTo(map);
       renderNearby(lat,lng);
     });
-  } else {
-    renderNearby(BERT.lat, BERT.lng);
   }
 
   map.on("click", e=>{
-    const title = prompt("Nome do ponto:", "Novo ponto");
+    const title = prompt("Nome do ponto:");
     if(!title) return;
     store.get().markers.push({title, lat:e.latlng.lat, lng:e.latlng.lng});
     store.save();
@@ -468,25 +441,21 @@ function initMap(){
 }
 
 function renderMarkers(){
-  leafletMarkers.forEach(m=> map.removeLayer(m));
-  leafletMarkers = [];
-
+  leafletMarkers.forEach(m=>map.removeLayer(m));
+  leafletMarkers=[];
   store.get().markers.forEach(p=>{
-    leafletMarkers.push(
-      L.marker([p.lat,p.lng]).addTo(map).bindPopup("<b>"+p.title+"</b>")
-    );
+    leafletMarkers.push(L.marker([p.lat,p.lng]).addTo(map).bindPopup("<b>"+p.title+"</b>"));
   });
 }
 
-/* Nearby points */
 function renderNearby(lat,lng){
-  const pts = store.get().markers.map(p=>{
-    p.dist = distanceKm(lat,lng,p.lat,p.lng);
-    return p;
-  }).filter(x=>x.dist<=50).sort((a,b)=>a.dist-b.dist);
+  const pts = store.get().markers
+    .map(p => ({...p, dist:distanceKm(lat,lng,p.lat,p.lng)}))
+    .filter(p => p.dist<=50)
+    .sort((a,b)=>a.dist-b.dist);
 
   $("nearbyList").innerHTML = pts.length
-    ? "<h4>Próximos:</h4>"+ pts.map(p=> `<div>${p.title} — ${p.dist.toFixed(1)} km</div>`).join("")
+    ? "<h4>Próximos:</h4>" + pts.map(p => `<div>${p.title} — ${p.dist.toFixed(1)} km</div>`).join("")
     : "<div class='muted'>Nenhum ponto próximo.</div>";
 }
 
@@ -495,21 +464,18 @@ function distanceKm(a,b,c,d){
   const dLat=(c-a)*Math.PI/180;
   const dLon=(d-b)*Math.PI/180;
   const x=Math.sin(dLat/2)**2 + Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2;
-  return R * 2 * Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+  return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
 
-/* ---------- Geocode search ---------- */
-async function performGeocode(query){
-  if(!query) return alert("Digite algo");
+/* ---------- Geocode ---------- */
+async function performGeocode(q){
+  if(!q) return alert("Digite algo.");
+  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`;
+  const res = await fetch(url);
+  const data = await res.json();
+  if(!data.length) return alert("Nada encontrado.");
 
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query)}`;
-
-  const res = await fetch(url, {headers:{'User-Agent':'Recicla Interativo'}});
-  const json = await res.json();
-
-  if(json.length===0) return alert("Local não encontrado");
-
-  const d = json[0];
+  const d = data[0];
   const lat = parseFloat(d.lat);
   const lon = parseFloat(d.lon);
 
@@ -517,23 +483,21 @@ async function performGeocode(query){
   L.marker([lat,lon]).addTo(map).bindPopup(d.display_name).openPopup();
 }
 
-/* ---------- Nearby schools via OSM ---------- */
+/* ---------- Escolas via OSM ---------- */
 async function fetchNearbySchools(){
-  const url = `https://nominatim.openstreetmap.org/search?format=json&q=school%20Bertolinia&limit=15`;
-  const res = await fetch(url, {headers:{'User-Agent':'Recicla Interativo'}});
+  const url = "https://nominatim.openstreetmap.org/search?format=json&q=school%20Bertolinia&limit=15";
+  const res = await fetch(url);
   const data = await res.json();
-
-  if(!data.length) return alert("Nenhuma escola encontrada");
+  if(!data.length) return alert("Nenhuma escola encontrada.");
 
   data.forEach(d=>{
     store.get().markers.push({
-      title: d.display_name,
-      lat: parseFloat(d.lat),
-      lng: parseFloat(d.lon)
+      title:d.display_name,
+      lat:parseFloat(d.lat),
+      lng:parseFloat(d.lon)
     });
   });
-
   store.save();
   renderMarkers();
-  alert("Escolas adicionadas ao mapa!");
+  alert("Escolas adicionadas!");
 }
