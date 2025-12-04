@@ -170,7 +170,7 @@
 
             <div class="muted small mt">
               Pergunta <span id="quizIndex">1</span> /
-              <span id="quizTotal">10</span>
+              <span id="quizTotal">3</span>
             </div>
           </div>
         </div>
@@ -208,29 +208,38 @@
         </div>
       </section>
 
-      <!-- SUPORTE (Netlify Forms) -->
+      <!-- SUPORTE -->
       <section id="support" class="page">
         <div class="card glass wide">
           <h3>Suporte</h3>
 
-          <form name="suporte" method="POST" data-netlify="true" class="mt">
-            <input type="hidden" name="form-name" value="suporte">
-            <label class="small">Nome</label>
-            <input type="text" name="nome" class="input" placeholder="Seu nome">
+          <div class="support-grid mt">
 
-            <label class="small">Email</label>
-            <input type="email" name="email" class="input" placeholder="email@exemplo.com" required>
+            <div>
+              <label>Nome</label>
+              <input id="supportName" />
 
-            <label class="small">Assunto</label>
-            <input type="text" name="assunto" class="input" placeholder="Ex: Erro no mapa" required>
+              <label>Email</label>
+              <input id="supportEmail" />
 
-            <label class="small">Mensagem</label>
-            <textarea name="mensagem" class="input" rows="5" placeholder="Descreva o problema..." required></textarea>
+              <label>Assunto</label>
+              <input id="supportSubject" />
 
-            <button type="submit" class="btn" style="margin-top:12px;">Enviar</button>
-          </form>
+              <label>Descrição</label>
+              <textarea id="supportMsg" rows="5"></textarea>
 
-          <div class="mt small muted">As mensagens são recebidas em Netlify → Forms → suporte</div>
+              <div class="mt">
+                <button id="btnSendSupport" class="btn">Enviar</button>
+                <button id="btnClearSupport" class="btn outline">Limpar</button>
+              </div>
+            </div>
+
+            <div>
+              <h4>Mensagens enviadas</h4>
+              <div id="supportList" class="muted small">Nenhuma mensagem.</div>
+            </div>
+
+          </div>
         </div>
       </section>
 
