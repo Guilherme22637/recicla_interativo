@@ -1,35 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Recicla Interativo</title>
 
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0f1724">
-
+  <!-- Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
+  <!-- Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 
+  <!-- QR -->
   <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
 
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css">
 </head>
-
 <body>
-<div class="app" id="app">
 
-  <!-- SIDEBAR FIXA (tema escuro antigo restaurado) -->
-  <aside class="sidebar fixed-dark">
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
     <div class="brand">
       <div class="logo">♻</div>
       <div class="title">Recicla<span>Interativo</span></div>
     </div>
 
-    <nav class="nav" id="nav">
+    <nav class="nav">
       <button data-page="dashboard" class="nav-btn active"><i class="fa-solid fa-house"></i> Dashboard</button>
       <button data-page="classify" class="nav-btn"><i class="fa-solid fa-camera"></i> Classificar</button>
       <button data-page="quiz" class="nav-btn"><i class="fa-solid fa-question"></i> Quiz</button>
@@ -40,17 +42,17 @@
     </nav>
 
     <div class="sidebar-footer">
-      <button id="logoutBtn" class="ghost">Resetar Usuário</button>
+      <button id="resetAll" class="ghost">Resetar</button>
     </div>
-  </aside>
-
+  </aside>
   <!-- MAIN -->
   <main class="main">
 
+    <!-- HEADER -->
     <header class="main-header">
       <div>
         <h2 id="pageTitle">Dashboard</h2>
-        <p class="muted">Bem-vindo — Bertolínia, PI</p>
+        <p class="muted">Bem-vindo(a)!</p>
       </div>
 
       <div class="header-actions">
@@ -59,71 +61,72 @@
       </div>
     </header>
 
+    <!-- PAGES WRAPPER -->
     <section class="pages">
 
       <!-- DASHBOARD -->
       <section id="dashboard" class="page active-page">
 
         <div class="grid-3">
-          <!-- CARD 1 -->
+
+          <!-- Card 1 -->
           <div class="card glass">
             <h3>Classificador Rápido</h3>
-            <p>Selecione tipo ou envie imagem.</p>
-            <div class="small-actions">
-              <input id="fileInput" type="file" accept="image/*" />
-              <select id="quickSelect">
-                <option value="">— Selecionar —</option>
-                <option value="Papel">Papel</option>
-                <option value="Plástico">Plástico</option>
-                <option value="Vidro">Vidro</option>
-                <option value="Metal">Metal</option>
-                <option value="Orgânico">Orgânico</option>
-              </select>
-              <button id="quickClassify" class="btn">Classificar</button>
-            </div>
+
+            <select id="quickSelect">
+              <option value="">Selecione...</option>
+              <option value="Papel">Papel</option>
+              <option value="Plástico">Plástico</option>
+              <option value="Vidro">Vidro</option>
+              <option value="Metal">Metal</option>
+              <option value="Orgânico">Orgânico</option>
+            </select>
+
+            <button id="quickClassify" class="btn mt">Classificar</button>
             <div id="quickResult" class="result">Resultado: —</div>
           </div>
 
-          <!-- CARD 2 -->
+          <!-- Card 2 - Mini Quiz -->
           <div class="card glass">
-            <h3>Quiz rápido</h3>
-            <div id="miniQuiz">
-              <div id="miniQuestion">Carregando...</div>
-              <div id="miniOptions" class="mini-options"></div>
-            </div>
+            <h3>Mini-Quiz</h3>
+            <div id="miniQuestion" class="mini-q">Carregando...</div>
+            <div id="miniOptions" class="mini-options"></div>
           </div>
 
-          <!-- CARD 3 -->
+          <!-- Card 3 - QR -->
           <div class="card glass">
             <h3>QR do Usuário</h3>
             <div id="qrPreview" class="qr-box">—</div>
           </div>
+
         </div>
 
         <div class="grid-2 mt">
           <div class="card glass">
-            <h3>Leaderboard (top 5)</h3>
+            <h3>Top 5</h3>
             <ol id="leaderTop" class="ranking-list"></ol>
           </div>
 
           <div class="card glass">
             <h3>Pontos por Escola</h3>
-            <div id="schoolStats">—</div>
+            <div id="schoolStats">Nenhum dado ainda.</div>
           </div>
         </div>
-      </section>
 
-      <!-- CLASSIFICADOR COMPLETO -->
+      </section>
+<!-- CLASSIFICADOR COMPLETO -->
       <section id="classify" class="page">
         <div class="card glass wide">
-          <h3>Classificador de Resíduos</h3>
+          <h3>Classificador Completo</h3>
 
           <div class="cols">
 
+            <!-- Coluna esquerda -->
             <div class="col">
               <label class="upload-box">
-                <input id="fileInputFull" type="file" accept="image/*" />
-                <span class="muted">Selecionar imagem</span>
+                <input id="fileInputFull" type="file" accept="image/*">
+                <span class="muted">Selecionar ou arrastar imagem</span>
+                <img id="previewImage" class="preview hidden">
               </label>
 
               <div class="manual-buttons mt">
@@ -135,12 +138,13 @@
               </div>
             </div>
 
+            <!-- Coluna direita -->
             <div class="col">
-              <div id="classifyResult" class="result large">Selecione um item</div>
+              <div id="classifyResult" class="result large">Selecione um item ou foto.</div>
               <div id="classifyTips" class="tips"></div>
 
               <div class="actions mt">
-                <button id="saveAction" class="btn soft">Registrar ação</button>
+                <button id="saveAction" class="btn soft">Registrar ação (+ pontos)</button>
                 <button id="genQRUser" class="btn outline">Gerar QR Usuário</button>
               </div>
             </div>
@@ -152,15 +156,15 @@
       <!-- QUIZ COMPLETO -->
       <section id="quiz" class="page">
         <div class="card glass wide">
-          <h3>Quiz Educativo — 10 Perguntas por rodada</h3>
+          <h3>Quiz Educativo — 10 Perguntas por Rodada</h3>
 
           <div id="quizContainer">
-            <div id="quizQuestion" class="quiz-question">Carregando perguntas...</div>
+            <div id="quizQuestion" class="quiz-question">Carregando...</div>
             <div id="quizAnswers" class="quiz-answers"></div>
 
-            <div class="muted small mt">
+            <p class="muted mt small">
               Pergunta <span id="quizIndex">1</span> / <span id="quizTotal">10</span>
-            </div>
+            </p>
           </div>
         </div>
       </section>
@@ -170,23 +174,24 @@
         <div class="card glass wide">
           <h3>Pontos de Coleta — Bertolínia, PI</h3>
 
-          <div style="display:flex;gap:8px;margin-bottom:10px;">
-            <input id="mapSearch" placeholder="Buscar endereço" style="flex:1">
+          <div class="map-controls">
+            <input id="mapSearch" placeholder="Buscar endereço">
             <button id="mapSearchBtn" class="btn">Buscar</button>
             <button id="mapMyLoc" class="btn outline">Minha localização</button>
             <button id="showSchoolsBtn" class="btn soft">Escolas</button>
           </div>
 
-          <div id="mapCanvas" style="height:420px;border-radius:12px;"></div>
-          <div class="mt small muted">Clique no mapa para adicionar pontos.</div>
+          <div id="mapCanvas" class="map-canvas"></div>
+          <div class="muted small mt">Clique no mapa para adicionar pontos.</div>
+
           <div id="nearbyList" class="mt"></div>
         </div>
-      </section>
-
+      </section>
       <!-- RANKING -->
       <section id="ranking" class="page">
         <div class="card glass wide">
-          <h3>Ranking</h3>
+          <h3>Ranking Geral</h3>
+
           <ol id="rankingList" class="ranking-list mt"></ol>
         </div>
       </section>
@@ -197,17 +202,19 @@
           <h3>Suporte</h3>
 
           <div class="support-grid mt">
+
+            <!-- Enviar mensagem -->
             <div>
               <label>Nome</label>
-              <input id="supportName" />
+              <input id="supportName">
 
               <label>Email</label>
-              <input id="supportEmail" />
+              <input id="supportEmail">
 
               <label>Assunto</label>
-              <input id="supportSubject" />
+              <input id="supportSubject">
 
-              <label>Descrição</label>
+              <label>Mensagem</label>
               <textarea id="supportMsg" rows="5"></textarea>
 
               <div class="mt">
@@ -216,10 +223,12 @@
               </div>
             </div>
 
+            <!-- Lista -->
             <div>
-              <h4>Mensagens enviadas</h4>
-              <div id="supportList" class="muted small">Nenhuma mensagem.</div>
+              <h4>Mensagens Recebidas</h4>
+              <div id="supportList" class="muted small">Nenhuma mensagem enviada.</div>
             </div>
+
           </div>
         </div>
       </section>
@@ -231,27 +240,27 @@
 
           <div class="profile-grid">
 
+            <!-- Coluna esquerda -->
             <div>
               <label>Nome</label>
-              <input id="inputName" />
+              <input id="inputName">
 
               <label>Escola</label>
-              <input id="inputSchool" />
+              <input id="inputSchool">
 
               <label>Turma</label>
-              <input id="inputClass" />
+              <input id="inputClass">
 
-              <div class="mt">
-                <label>Foto de Perfil</label>
-                <input id="inputAvatarFile" type="file" accept="image/*" />
-                <img id="avatarImg" class="avatar-img" />
-              </div>
+              <label>Foto de Perfil</label>
+              <input id="inputAvatarFile" type="file" accept="image/*">
+              <img id="avatarImg" class="avatar-img">
 
               <div class="mt">
                 <button id="saveProfile" class="btn">Salvar</button>
               </div>
             </div>
 
+            <!-- Coluna direita -->
             <div>
 
               <div class="card mini glass">
@@ -263,11 +272,11 @@
               </div>
 
               <div class="card mini glass mt">
-                <h4>Exportar / Importar</h4>
+                <h4>Exportar / Importar Dados</h4>
                 <button id="btnExport" class="btn">Exportar</button>
-                <input id="importFile" type="file" accept=".json" class="hidden" />
+                <input id="importFile" type="file" accept=".json" class="hidden">
                 <button id="btnImport" class="btn outline">Importar</button>
-                <button id="resetAll" class="ghost mt">Resetar dados</button>
+                <button id="resetAll" class="ghost mt">Resetar tudo</button>
               </div>
 
             </div>
@@ -276,7 +285,8 @@
         </div>
       </section>
 
-    </section>
+    </section> <!-- end pages -->
+
   </main>
 </div>
 
@@ -295,3 +305,5 @@
 <script src="script.js"></script>
 </body>
 </html>
+
+
